@@ -15,16 +15,22 @@ jobs:
         node-version: [24.x]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v7
 
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v7
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
 
     - name: Install Dependencies
-      run: npm install
+      run: npm ci
+
+    - name: Dependency security regressions
+      run: npm run test:dependency-guards
+
+    - name: Dependency audit
+      run: npm audit --audit-level=high
 
     - name: Lint
       run: npm run lint
