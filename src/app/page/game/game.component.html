@@ -5,24 +5,25 @@
 
       <label for="quantity" class="keybinding__label">Quantity</label>
       <input id="quantity" name="quantity" type="number" min="1" required
-        placeholder="Enter the quantity you would like to convert" [ngModel]="quantity"
+        placeholder="Enter the quantity you would like to convert" [ngModel]="quantity()"
         (ngModelChange)="updateQuantity($event)" />
 
       <label for="from" class="keybinding__label">From item</label>
-      <select id="from" name="from" [ngModel]="firstElement"
-        (ngModelChange)="firstElement = $event; setFrom($event?.id ?? null)">
+      <select id="from" name="from" [ngModel]="fromId()" (ngModelChange)="fromId.set($event)">
         <option [ngValue]="null" class="keybinding__label">
-          {{ selectFromPlaceholder$ | async }}
+          {{ selectFromPlaceholder() }}
         </option>
-        <option *ngFor="let obj of listOfAllCard$ | async" [ngValue]="obj" class="keybinding__label">
-          {{ obj.name }}
-        </option>
+        @for (obj of items(); track obj.id) {
+          <option [ngValue]="obj.id" class="keybinding__label">
+            {{ obj.name }}
+          </option>
+        }
       </select>
     </ul>
 
     <ul class="keybinding__detail">
       <label for="property" class="keybinding__label">by the</label>
-      <select id="property" name="property" [(ngModel)]="property" (ngModelChange)="recompute()">
+      <select id="property" name="property" [ngModel]="property()" (ngModelChange)="property.set($event)">
         <option [ngValue]="null" class="keybinding__label">Select</option>
         <option class="keybinding__label" value="length">length</option>
         <option class="keybinding__label" value="weight">weight</option>
@@ -34,14 +35,15 @@
       <h3 class="keybinding__title">into…</h3>
 
       <label for="to" class="keybinding__label">To item</label>
-      <select id="to" name="to" [ngModel]="secondElement"
-        (ngModelChange)="secondElement = $event; setTo($event?.id ?? null)">
+      <select id="to" name="to" [ngModel]="toId()" (ngModelChange)="toId.set($event)">
         <option [ngValue]="null" class="keybinding__label">
-          {{ selectToPlaceholder$ | async }}
+          {{ selectToPlaceholder() }}
         </option>
-        <option *ngFor="let obj of listOfAllCard$ | async" [ngValue]="obj" class="keybinding__label">
-          {{ obj.name }}
-        </option>
+        @for (obj of items(); track obj.id) {
+          <option [ngValue]="obj.id" class="keybinding__label">
+            {{ obj.name }}
+          </option>
+        }
       </select>
     </ul>
   </section>
@@ -53,13 +55,19 @@
     <p class="hero__description">Also relative to each other</p>
   </section>
 
-  <section class="hero__terminal" *ngIf="firstElement && secondElement && property">
-    <pre>
+  @if (firstElement(); as first) {
+    @if (secondElement(); as second) {
+      @if (property(); as prop) {
+        <section class="hero__terminal">
+          <pre>
 <code class="shell-session demo hljs nginx">
-<span class="hljs-attribute">Convertrix v.1.0.0</span> <span class="hljs-regexp">~ $ </span>{{ quantity }} {{ firstElement.name }}(s) {{ property }} the same as {{ finalResult | number:'1.2-4' }} {{ secondElement.name }}(s).
+<span class="hljs-attribute">Convertrix v.1.0.0</span> <span class="hljs-regexp">~ $ </span>{{ quantity() }} {{ first.name }}(s) {{ prop }} the same as {{ finalResult() | number:'1.2-4' }} {{ second.name }}(s).
 
-<br><br><span class="hljs-attribute">By the way... Do you know?</span> <span class="hljs-regexp">~ $ </span><br> {{ firstElement.description }}
+<br><br><span class="hljs-attribute">By the way... Do you know?</span> <span class="hljs-regexp">~ $ </span><br> {{ first.description }}
 </code>
-    </pre>
-  </section>
+          </pre>
+        </section>
+      }
+    }
+  }
 </form>

@@ -1,12 +1,13 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  Input,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
+  computed,
+  inject,
+  signal,
 } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { DecimalPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Item } from '../../model/item';
 import { ConvertService, PropKind } from '../../service/convert.service';
 import { TranslateService } from '../../service/translate.service';
@@ -15,89 +16,57 @@ import { TranslateService } from '../../service/translate.service';
   selector: 'app-game',
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.scss'],
-  standalone: false,
+  imports: [FormsModule, DecimalPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GameComponent implements OnInit, OnChanges {
-  // --- Input ---
-  @Input() quantity = 1;
+export class GameComponent {
+  private readonly convertService = inject(ConvertService);
+  private readonly translate = inject(TranslateService);
 
   // --- UI texts ---
-  selectFromPlaceholder$ = this.translate.get('select_from_placeholder');
-  selectToPlaceholder$ = this.translate.get('select_to_placeholder');
+  readonly selectFromPlaceholder = toSignal(
+    this.translate.get('select_from_placeholder'),
+    { initialValue: '' }
+  );
+  readonly selectToPlaceholder = toSignal(
+    this.translate.get('select_to_placeholder'),
+    { initialValue: '' }
+  );
 
-  // --- Data source ---
-  listOfAllCard$: Observable<readonly Item[]> = of([]);
+  // --- Data source (follows the selected language) ---
+  readonly items = toSignal(this.convertService.getItems(), {
+    initialValue: [] as readonly Item[],
+  });
 
-  // --- Selections (the template refers to them) ---
-  firstElement: Item | null = null;
-  secondElement: Item | null = null;
-  property: PropKind | null = null;
+  // --- Selections ---
+  readonly quantity = signal(1);
+  readonly fromId = signal<number | null>(null);
+  readonly toId = signal<number | null>(null);
+  readonly property = signal<PropKind | null>(null);
 
-  // --- Internal IDs for calculation ---
-  private _fromId: number | null = null;
-  private _toId: number | null = null;
+  readonly firstElement = computed(() => this.findItem(this.fromId()));
+  readonly secondElement = computed(() => this.findItem(this.toId()));
 
   // --- Result ---
-  private _finalResult = 0;
-  get finalResult(): number {
-    return this._finalResult;
-  }
-
-  constructor(
-    private readonly convertService: ConvertService,
-    private readonly translate: TranslateService
-  ) {}
-
-  // ---- Lifecycle ----
-  ngOnInit(): void {
-    this.listOfAllCard$ = this.convertService.getItems();
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if ('quantity' in changes) this.recompute();
-  }
-
-  // ---- Public methods called by the template ----
-  setFrom(id: number | null): void {
-    this._fromId = id;
-    this.recompute();
-  }
-
-  setTo(id: number | null): void {
-    this._toId = id;
-    this.recompute();
-  }
-
-  updateQuantity(next: number): void {
-    this.quantity = Number(next) || 0;
-    this.recompute();
-  }
-
-  // It is public because it is referenced by the template
-  recompute(): void {
-    if (this._fromId == null || this._toId == null || this.property == null) {
-      this._finalResult = 0;
-      return;
-    }
-    this._finalResult = this.convertService.compareItems(
-      this._fromId,
-      this._toId,
-      this.property,
-      this.quantity
+  readonly finalResult = computed(() => {
+    const from = this.fromId();
+    const to = this.toId();
+    const property = this.property();
+    if (from == null || to == null || property == null) return 0;
+    return this.convertService.compareItems(
+      from,
+      to,
+      property,
+      this.quantity()
     );
+  });
 
-    // Refresh description
-    if (this._fromId) {
-      this.convertService.getItem(this._fromId).subscribe((it) => {
-        if (this.firstElement) this.firstElement.description = it!.description;
-      });
-    }
-    if (this._toId) {
-      this.convertService.getItem(this._toId).subscribe((it) => {
-        if (this.secondElement)
-          this.secondElement.description = it!.description;
-      });
-    }
+  updateQuantity(next: number | string | null): void {
+    this.quantity.set(Number(next) || 0);
+  }
+
+  private findItem(id: number | null): Item | null {
+    if (id == null) return null;
+    return this.items().find((item) => item.id === id) ?? null;
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { Item } from '../model/item';
 import { Language } from '../model/language';
@@ -128,9 +128,9 @@ export class ConvertService {
       length: 1.0922,
       weight: 997,
       description:
-        'A $1 million stack of $100 bills is 43 inches tall (10,000 x 0043 inches = 43 inches)',
+        'A $1 million stack of $100 bills is 43 inches tall (10,000 x 0.0043 inches = 43 inches)',
       descriptionHungarian:
-        'Egy egymillió dollárnyi 100 dolláros bankjegy 43 hüvelyk magas (10 000 x 0043 hüvelyk = 43 hüvelyk)',
+        'Egy egymillió dollárnyi 100 dolláros bankjegy 43 hüvelyk magas (10 000 x 0,0043 hüvelyk = 43 hüvelyk)',
     },
     {
       id: 11,
@@ -245,55 +245,39 @@ export class ConvertService {
   ];
 
   // --- Index for fast search ---
-  private readonly byId = new Map<number, Omit<Item, 'name' | 'description'>>();
-  private readonly byIdCache = new Map<Language, Map<number, Item>>();
-
-  constructor(private readonly translate: TranslateService) {
-    for (const it of this.items) this.byId.set(it.id, it);
-
-    this.translate.language$.subscribe((lang) => {
-      const cache = this.byIdCache.get(lang) ?? new Map<number, Item>();
-      if (cache.size > 0) return; // already warm
-
-      for (const it of this.items) {
-        cache.set(
+  private readonly byId = new Map<number, ItemSource>(
+    this.items.map((it) => [it.id, it])
+  );
+  private readonly localized: Record<Language, readonly Item[]> = {
+    [Language.ENGLISH]: this.items.map(
+      (it) =>
+        new Item(it.id, it.nameEnglish, it.length, it.weight, it.description)
+    ),
+    [Language.HUNGARIAN]: this.items.map(
+      (it) =>
+        new Item(
           it.id,
-          new Item(
-            it.id,
-            lang === Language.HUNGARIAN ? it.nameHungarian : it.nameEnglish,
-            it.length,
-            it.weight,
-            lang === Language.HUNGARIAN
-              ? it.descriptionHungarian
-              : it.description
-          )
-        );
-      }
-      this.byIdCache.set(lang, cache);
-    });
-  }
+          it.nameHungarian,
+          it.length,
+          it.weight,
+          it.descriptionHungarian
+        )
+    ),
+  };
+
+  private readonly translate = inject(TranslateService);
 
   // --- Public API ---
+  /** All items, localized to the currently selected language. */
   getItems(): Observable<readonly Item[]> {
-    return this.translate.language$.pipe(
-      map((lang) => {
-        const cache = this.byIdCache.get(lang);
-        if (!cache) return [];
-        return Array.from(cache.values());
-      })
-    );
+    return this.translate.language$.pipe(map((lang) => this.localized[lang]));
   }
 
-  getItem(id: number): Observable<Item | undefined> {
-    return this.translate.language$.pipe(
-      map((lang) => {
-        const cache = this.byIdCache.get(lang);
-        if (!cache) return undefined;
-        return cache.get(id);
-      })
-    );
-  }
-
+  /**
+   * How many `item2Id` items equal `quantity` pieces of `item1Id` by the given
+   * property. Returns 0 for unknown items, a non-positive quantity or when the
+   * target item has no size in that dimension.
+   */
   compareItems(
     item1Id: number | null | undefined,
     item2Id: number | null | undefined,
