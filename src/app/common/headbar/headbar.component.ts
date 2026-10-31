@@ -1,4 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { Language } from '../../model/language';
 import { TranslateService } from '../../service/translate.service';
 
@@ -6,21 +12,20 @@ import { TranslateService } from '../../service/translate.service';
   selector: 'app-headbar',
   templateUrl: './headbar.component.html',
   styleUrls: ['./headbar.component.scss'],
-  standalone: false,
+  imports: [RouterLink, RouterLinkActive],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HeadbarComponent implements OnInit {
-  isMenuOpen = false;
-  Language = Language;
+export class HeadbarComponent {
+  private readonly translate = inject(TranslateService);
 
-  constructor(private readonly translate: TranslateService) {}
+  readonly Language = Language;
+  readonly isMenuOpen = signal(false);
 
-  ngOnInit(): void {}
-
-  toggleMenu() {
-    this.isMenuOpen = !this.isMenuOpen;
+  toggleMenu(): void {
+    this.isMenuOpen.update((open) => !open);
   }
 
-  setLanguage(lang: Language) {
+  setLanguage(lang: Language): void {
     this.translate.setLanguage(lang);
   }
 }

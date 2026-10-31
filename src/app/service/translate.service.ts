@@ -6,10 +6,10 @@ import { Language } from '../model/language';
   providedIn: 'root',
 })
 export class TranslateService {
-  private language = new BehaviorSubject<Language>(Language.ENGLISH);
-  language$ = this.language.asObservable();
+  private readonly language = new BehaviorSubject<Language>(Language.ENGLISH);
+  readonly language$ = this.language.asObservable();
 
-  private translations: Record<Language, Record<string, string>> = {
+  private readonly translations: Record<Language, Record<string, string>> = {
     [Language.ENGLISH]: {
       select_from_placeholder: 'Select the item you would like to convert',
       select_to_placeholder: 'Select the item you want to convert to',
@@ -19,8 +19,6 @@ export class TranslateService {
       select_to_placeholder: 'Válaszd ki, hogy mire szeretnéd átváltani',
     },
   };
-
-  constructor() {}
 
   setLanguage(language: Language): void {
     this.language.next(language);

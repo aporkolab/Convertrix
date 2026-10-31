@@ -1,16 +1,20 @@
 <nav>
   <div class="logo"></div>
-  <ul class="menu" [ngClass]="{ responsive: isMenuOpen }">
-    <div class="menu__item toggle" (click)="toggleMenu()" [ngClass]="{ open: isMenuOpen }">
+  <ul class="menu" [class.responsive]="isMenuOpen()">
+    <div class="menu__item toggle" (click)="toggleMenu()" [class.open]="isMenuOpen()">
       <span></span>
     </div>
     <li class="menu__item">
-      <a class="link link--dark" [routerLink]="['/']" routerLinkActive="active"
+      <a
+        class="link link--dark"
+        [routerLink]="['/']"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
         ><i class="fa fa-home"></i> Home</a
       >
     </li>
     <li class="menu__item">
-      <a class="link link--dark" [routerLink]="['/game']"
+      <a class="link link--dark" [routerLink]="['/game']" routerLinkActive="active"
         ><i class="fa fa-gamepad"></i> Game</a
       >
     </li>
