@@ -7,9 +7,9 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { Item } from 'src/app/model/item';
-import { ConvertService, PropKind } from 'src/app/service/convert.service';
-import { TranslateService } from 'src/app/service/translate.service';
+import { Item } from '../../model/item';
+import { ConvertService, PropKind } from '../../service/convert.service';
+import { TranslateService } from '../../service/translate.service';
 
 @Component({
   selector: 'app-game',
