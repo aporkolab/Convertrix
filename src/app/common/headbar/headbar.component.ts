@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Language } from 'src/app/model/language';
-import { TranslateService } from 'src/app/service/translate.service';
+import { Language } from '../../model/language';
+import { TranslateService } from '../../service/translate.service';
 
 @Component({
   selector: 'app-headbar',
