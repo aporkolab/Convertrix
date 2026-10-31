@@ -56,7 +56,7 @@ describe('HeadbarComponent', () => {
 
   it('should switch the language', async () => {
     await harness.navigateByUrl('/');
-    const spy = spyOn(translate, 'setLanguage').and.callThrough();
+    const spy = vi.spyOn(translate, 'setLanguage');
 
     linkByText('HU').click();
     expect(spy).toHaveBeenCalledWith(Language.HUNGARIAN);

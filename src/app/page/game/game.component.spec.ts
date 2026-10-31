@@ -53,7 +53,7 @@ describe('GameComponent', () => {
   });
 
   it('should compute and render the conversion', () => {
-    const spy = spyOn(convertService, 'compareItems').and.callThrough();
+    const spy = vi.spyOn(convertService, 'compareItems');
 
     component.updateQuantity(2);
     component.fromId.set(EIFFEL_TOWER);
