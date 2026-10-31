@@ -4,9 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { Observable, of } from 'rxjs';
 
 import { GameComponent } from './game.component';
-import { ConvertService, PropKind } from 'src/app/service/convert.service';
-import { Item } from 'src/app/model/item';
-import { TranslateService } from 'src/app/service/translate.service';
+import { ConvertService, PropKind } from '../../service/convert.service';
+import { Item } from '../../model/item';
+import { TranslateService } from '../../service/translate.service';
 
 class MockTranslateService {
   get(key: string): Observable<string> {

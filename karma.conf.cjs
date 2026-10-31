@@ -4,13 +4,12 @@
 module.exports = function (config) {
   config.set({
     basePath: '',
-    frameworks: ['jasmine', '@angular-devkit/build-angular'],
+    frameworks: ['jasmine'],
     plugins: [
       'karma-jasmine',
       'karma-chrome-launcher',
       'karma-jasmine-html-reporter',
       'karma-coverage',
-      '@angular-devkit/build-angular/plugins/karma',
     ],
     client: {
       jasmine: {
@@ -41,7 +40,7 @@ module.exports = function (config) {
     customLaunchers: {
       ChromeHeadlessCI: {
         base: 'ChromeHeadless',
-        flags: ['--no-sandbox', '--disable-web-security'],
+        flags: ['--no-sandbox'],
       },
     },
   });
