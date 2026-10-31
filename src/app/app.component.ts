@@ -1,15 +1,14 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { HeadbarComponent } from './common/headbar/headbar.component';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
-  standalone: false,
+  imports: [HeadbarComponent, RouterOutlet],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {
-  title = 'convertrix';
-
-  ngOnInit() {
-    // All the logic from the original ngOnInit has been moved to the appropriate components or removed.
-  }
+  readonly title = 'convertrix';
 }
