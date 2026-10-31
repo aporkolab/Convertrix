@@ -28,12 +28,20 @@ There is no need for preparations before running. Just enjoy the weird data! :)
 
 ## **3. Version history**
 
-Technologies used: Angular 20 and Bootstrap 5, other NPM libraries (see _package.json_ for the exact list).
+Technologies used: Angular 22 (standalone components, signals), TypeScript 6, Bootstrap 5 and RxJS 7 (see _package.json_ for the exact list).
 
-This project has been updated to use modern best practices, including:
-- **Angular 20:** The latest version of the Angular framework.
-- **ESLint and Prettier:** For code quality and consistent formatting.
-- **Husky:** For pre-commit hooks to ensure code quality.
+Tooling:
+- **@angular/build (esbuild):** application builder and dev server.
+- **Vitest:** unit tests through the Angular `unit-test` builder (jsdom).
+- **ESLint and Prettier:** code quality and consistent formatting.
+- **GitHub Actions:** dependency guard, `npm audit`, lint, tests and production build on every push and pull request to `main`.
+
+### Unreleased (2026-10-31)
+
+- Maintenance update: Angular 22.2.4, moved to the esbuild-based application builder, Karma/Jasmine replaced by Vitest.
+- Standalone components with signals and the new control flow; the `AppModule` is gone.
+- Fixed: the selected items were lost when switching language, the contact page typewriter kept running after leaving the page, the "Home" menu item was always highlighted, unknown URLs showed an empty page.
+- Removed unused dependencies and global scripts (jQuery, Bootstrap JS, scribbler.js, highlight.js).
 
 ### v.2.0.0 (2025-08-26)
 
@@ -70,6 +78,8 @@ This project has been updated to use modern best practices, including:
 
 ## **4. Install the application**
 
+Prerequisites: Node.js 24 (see `.nvmrc`) and npm 11 or newer.
+
 1.  Clone the repository:
     ```bash
     git clone https://github.com/APorkolab/Convertrix.git
@@ -80,16 +90,22 @@ This project has been updated to use modern best practices, including:
     ```
 3.  Install the dependencies:
     ```bash
-    npm install
+    npm ci
     ```
 
 ## **5. Configure the application**
 
-- There is no need to configure the application because there is no backend in it.
+- There is no need to configure the application because there is no backend in it. No environment variables are used.
 
 ## **6. Start the application**
 
-- The application can be started with the `npm start` command.
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Development server on http://localhost:4200 with live reload. |
+| `npm test` | Unit tests (Vitest, watch mode; add `-- --watch=false` for a single run). |
+| `npm run lint` | ESLint + Prettier check. |
+| `npm run build` | Production build into `dist/convertrix`. |
+| `npm start` | Serves the production build from `dist/convertrix` (run `npm run build` first). |
 
 ## **7. A special thanks to...**
 
@@ -133,7 +149,13 @@ A futtatás előtt nincs szükség előkészületekre. Csak élvezze a furcsa ad
 
 ## **3. Verziótörténet**
 
-Használt technológiák: Angular 14 és Bootstrap 5, egyéb NPM könyvtárak (a pontos listát lásd a _package.json_-ban).
+Használt technológiák: Angular 22 (standalone komponensek, signalok), TypeScript 6, Bootstrap 5 és RxJS 7 (a pontos listát lásd a _package.json_-ban). Build: @angular/build (esbuild), tesztek: Vitest, kódminőség: ESLint és Prettier.
+
+### Kiadatlan (2026-10-31)
+
+- Karbantartási frissítés: Angular 22.2.4, esbuild alapú application builder, a Karma/Jasmine helyett Vitest.
+- Standalone komponensek signalokkal és az új vezérlési szintaxissal.
+- Javítva: nyelvváltáskor elveszett a kiválasztás, a kapcsolat oldal „írógépe” az oldal elhagyása után is futott, a „Home” menüpont mindig aktív volt, ismeretlen URL-en üres oldal jelent meg.
 
 ### v.1.0.0 (2022-11-01)
 
@@ -164,37 +186,24 @@ Használt technológiák: Angular 14 és Bootstrap 5, egyéb NPM könyvtárak (a
 ## **4. Az alkalmazás telepítése**
 
 1.  Ha nincs telepítve a Git verziókezelő szoftver, töltse le és telepítse az operációs rendszerének megfelelő verziót a [https://git-scm.com](https://git-scm.com/) oldalról.
-2.  Ha nincs telepítve a NodeJS futtatókörnyezet, töltse le és telepítse az [https://nodejs.org/en/](https://nodejs.org/en/) oldalról az "LTS" jelzésű verziót.
-3.  Ha nincs telepítve a rendszerére az Angular keretrendszer, akkor a PowerShellben az `npm i -g @angular/cli` parancs kiadásával tegye ezt meg.
-4.  Klónozza a vonatkozó GitHub-tár tartalmát. Adja ki tehát a PowerShellben a következő parancsot:
+2.  Telepítse a Node.js 24-es verzióját (lásd `.nvmrc`) a [https://nodejs.org/en/](https://nodejs.org/en/) oldalról. Az Angular CLI-t nem kell globálisan telepíteni, a projekt függőségei tartalmazzák.
+3.  Klónozza a GitHub-tárat:
 
-    https://github.com/APorkolab/Convertrix.git`
+    `git clone https://github.com/APorkolab/Convertrix.git`
 
-5.  Telepítse az alkalmazás függőségeit: - Menjen a terminálban a /backend mappába (`cd backend`) és futtassa az `npm i` parancsot.
-
-    - frontend
-
-      - A terminálon futtassa az `npm i`.\*
-
-6.1. Kézi telepítéshez:
-
-- A terminálban adja ki az `ng build` parancsot.
-- A /dist mappa tartalmát át kell másolni a webszerverre, ha telepíteni szeretné.
-
-VAGY
-
-7.2. Automatikus telepítés esetén:
-
-- A terminálban futtassa az `npm run build` parancsot.
-- Fontos, hogy csak az egyik módszerrel telepítsen.
+4.  A projekt mappájában telepítse a függőségeket: `npm ci`
 
 ## **5. Az alkalmazás konfigurálása**
 
-- Nincs szükség az alkalmazás konfigurálására, mivel nincs benne backend.
+- Nincs szükség az alkalmazás konfigurálására, mivel nincs benne backend, környezeti változókat sem használ.
 
 ## **6. Indítsa el az alkalmazást**
 
-- Az alkalmazás az `npm start` paranccsal indítható.
+- Fejlesztői szerver: `npm run dev` (http://localhost:4200)
+- Tesztek: `npm test` (egyszeri futtatás: `npm test -- --watch=false`)
+- Lint: `npm run lint`
+- Éles build: `npm run build` (kimenet: `dist/convertrix`, ennek tartalmát kell a webszerverre másolni)
+- Az éles build kiszolgálása: `npm start` (előtte `npm run build`)
 
 ## **7. Külön köszönet...**
 
